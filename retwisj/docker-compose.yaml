@@ -1,0 +1,13 @@
+version: "3.9"
+services: 
+  retwisj: 
+    build: ./retwisj
+    ports:
+      - "8080:8080"
+    links:
+      - redis
+  redis:
+    image: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - ./data:/data
