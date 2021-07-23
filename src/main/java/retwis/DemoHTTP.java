@@ -72,11 +72,11 @@ public class DemoHTTP {
 
 			ScriptedEmitter.use( HTTPEmitter.use( commandInterfaceAddress ) )
 					.emit( new LinkedList<>( List.of(
-							new Emitter.Post( sToken, "A retwis.Post from Save" ),
+							new Emitter.Post( sToken, "A retwis.Post from Save", "Save" ),
 							new Emitter.Follow( fToken, "Save", "Fabrizio" ),
 							new Emitter.Follow( sToken, "Marco", "Save" ),
 							new Emitter.Posts( "Save", 0 ),
-							new Emitter.Logout()
+							new Emitter.Logout( sToken )
 					) ) );
 
 			new Retwis_Client( chCS.left(), HTTP_CI ).loop();

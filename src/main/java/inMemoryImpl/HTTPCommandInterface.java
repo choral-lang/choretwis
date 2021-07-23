@@ -7,14 +7,11 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import emitters.Emitter;
 import retwis.*;
@@ -76,7 +73,10 @@ public class HTTPCommandInterface implements CommandInterface {
 			handleResponse( exchange );
 		} );
 		httpServer.createContext( "/logout", exchange -> {
-			Emitter.Action action = new Emitter.Logout();
+			Headers headers = exchange.getRequestHeaders();
+			Emitter.Action action = new Emitter.Logout(
+							new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) )
+			);
 			addAction( action );
 			handleResponse( exchange );
 		} );
@@ -92,6 +92,7 @@ public class HTTPCommandInterface implements CommandInterface {
 		httpServer.createContext( "/status", exchange -> {
 			Headers headers = exchange.getRequestHeaders();
 			Emitter.Action action = new Emitter.Status(
+					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
 					headers.getFirst( Emitter.Action.Fields.statusPostID.name() )
 			);
 			addAction( action );

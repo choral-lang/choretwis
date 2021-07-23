@@ -60,19 +60,34 @@ public interface Emitter {
 	class Post implements Action {
 		private final Token sessionToken;
 		private final String post;
+		private final String username;
 		private final RetwisAction action = RetwisAction.POST;
 
-		public Post( Token sessionToken, String post ) {
+		public Post( Token sessionToken, String post, String username ) {
+			this.username = username;
 			this.sessionToken = sessionToken;
 			this.post = post;
 		}
 
+		public Post( Token sessionToken, String post ) {
+			this.username = "";
+			this.sessionToken = sessionToken;
+			this.post = post;
+		}
+
+		@Override
 		public Token sessionToken() {
 			return sessionToken;
 		}
 
+		@Override
 		public String post() {
 			return post;
+		}
+
+		@Override
+		public String username() {
+			return username;
 		}
 
 		@Override
@@ -93,14 +108,17 @@ public interface Emitter {
 			this.username = username;
 		}
 
+		@Override
 		public Token sessionToken() {
 			return sessionToken;
 		}
 
+		@Override
 		public String followTarget() {
 			return followTarget;
 		}
 
+		@Override
 		public String username() {
 			return username;
 		}
@@ -124,14 +142,17 @@ public interface Emitter {
 			this.username = username;
 		}
 
+		@Override
 		public Token sessionToken() {
 			return sessionToken;
 		}
 
+		@Override
 		public String stopFollowTarget() {
 			return stopFollowTarget;
 		}
 
+		@Override
 		public String username() {
 			return username;
 		}
@@ -153,10 +174,12 @@ public interface Emitter {
 			this.mentionsUsername = mentionsUsername;
 		}
 
+		@Override
 		public Token sessionToken() {
 			return sessionToken;
 		}
 
+		@Override
 		public String mentionsUsername() {
 			return mentionsUsername;
 		}
@@ -169,14 +192,22 @@ public interface Emitter {
 
 	class Status implements Action {
 		private final String statusPostID;
+		private final Token sessionToken;
 		private final RetwisAction action = RetwisAction.STATUS;
 
-		public Status( String statusPostID ) {
+		public Status( Token sessionToken, String statusPostID ) {
+			this.sessionToken = sessionToken;
 			this.statusPostID = statusPostID;
 		}
 
+		@Override
 		public String statusPostID() {
 			return statusPostID;
+		}
+
+		@Override
+		public Token sessionToken() {
+			return sessionToken;
 		}
 
 		@Override
@@ -187,8 +218,16 @@ public interface Emitter {
 
 	class Logout implements Action {
 		private final RetwisAction action = RetwisAction.LOGOUT;
+		private final Token sessionToken;
 
-		public Logout() {}
+		public Logout( Token sessionToken ) {
+			this.sessionToken = sessionToken;
+		}
+
+		@Override
+		public Token sessionToken() {
+			return sessionToken;
+		}
 
 		@Override
 		public RetwisAction action() {

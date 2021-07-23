@@ -68,7 +68,7 @@ public class DemoLocal {
 						new Emitter.Follow( fToken, "Save", "Fabrizio" ),
 						new Emitter.Follow( sToken, "Marco", "Save" ),
 						new Emitter.Posts( "Save", 0 ),
-						new Emitter.Logout()
+						new Emitter.Logout( sToken )
 				) );
 
 		new Retwis_Client( chCS.left(), imci ).loop();
