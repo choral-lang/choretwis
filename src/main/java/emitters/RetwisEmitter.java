@@ -62,6 +62,7 @@ public class RetwisEmitter implements Emitter {
 									.GET()
 									.uri( URI.create( getServerPrefix() + "/!" + action.followTarget() + "/follow" ) )
 									.header( "Cookie", "retwisauth=" + action.sessionToken().id() )
+									.header( "username", action.username() )
 									.build();
 				}
 				// ✅
@@ -70,6 +71,7 @@ public class RetwisEmitter implements Emitter {
 									.GET()
 									.uri( URI.create( getServerPrefix() + "/!" + action.stopFollowTarget() + "/stopfollowing" ) )
 									.header( "Cookie", "retwisauth=" + action.sessionToken().id() )
+									.header( "username", action.username() )
 									.build();
 				}
 				// ✅
@@ -101,9 +103,10 @@ public class RetwisEmitter implements Emitter {
 							.version( HttpClient.Version.HTTP_1_1 )
 							.build();
 			HttpResponse< String > response = null;
+			System.out.println( "RetwisEmitter sending request at " + request.uri() );
 			response = client.send( request,
 							HttpResponse.BodyHandlers.ofString( StandardCharsets.UTF_8 ) );
-			System.out.println( "HTTP_EMITTER Received response: "
+			System.out.println( "RetwisEmitter Received response: "
 							+ response + "\n"
 							+ response.body() );
 		} catch ( IOException | InterruptedException e ) {

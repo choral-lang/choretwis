@@ -1,4 +1,4 @@
-package inMemoryImpl;
+package commandInterfaces;
 
 import emitters.Emitter;
 import retwis.*;

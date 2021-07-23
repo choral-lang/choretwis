@@ -1,4 +1,4 @@
-package inMemoryImpl;
+package databases;
 
 import retwis.DatabaseConnection;
 import retwis.Mentions;

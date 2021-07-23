@@ -7,9 +7,8 @@ import choral.utils.Pair;
 import emitters.Emitter;
 import emitters.HTTPEmitter;
 import emitters.ScriptedEmitter;
-import inMemoryImpl.HTTPCommandInterface;
-import inMemoryImpl.InMemoryDatabaseConnection;
-import inMemoryImpl.SimpleSessionManager;
+import commandInterfaces.HTTPCommandInterface;
+import databases.InMemoryDatabaseConnection;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

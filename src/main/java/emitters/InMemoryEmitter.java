@@ -1,6 +1,6 @@
 package emitters;
 
-import inMemoryImpl.InMemoryCommandInterface;
+import commandInterfaces.InMemoryCommandInterface;
 
 public class InMemoryEmitter implements Emitter {
 

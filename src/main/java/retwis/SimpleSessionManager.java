@@ -1,7 +1,4 @@
-package inMemoryImpl;
-
-import retwis.SessionManager;
-import retwis.Token;
+package retwis;
 
 import java.util.HashMap;
 import java.util.UUID;

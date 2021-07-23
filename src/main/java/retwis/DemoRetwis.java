@@ -4,18 +4,23 @@ import choral.channels.SymChannel_A;
 import choral.channels.SymChannel_B;
 import choral.choralUnit.testUtils.TestUtils;
 import choral.utils.Pair;
-import emitters.Emitter;
-import emitters.InMemoryEmitter;
-import emitters.ScriptedEmitter;
-import commandInterfaces.InMemoryCommandInterface;
+import commandInterfaces.HTTPCommandInterface;
+import commandInterfaces.RetwisCommandInterface;
 import databases.InMemoryDatabaseConnection;
+import emitters.Emitter;
+import emitters.HTTPEmitter;
+import emitters.RetwisEmitter;
+import emitters.ScriptedEmitter;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DemoLocal {
+public class DemoRetwis {
 
 	private static void startRepository(
 			ExecutorService executor, SymChannel_B< Object > chSR
@@ -61,19 +66,27 @@ public class DemoLocal {
 		startRepository( Executors.newSingleThreadExecutor(), chSR.right() );
 		startServer( Executors.newSingleThreadExecutor(), chCS.right(), chSR.left() );
 
-		InMemoryCommandInterface imci = new InMemoryCommandInterface();
-		ScriptedEmitter.use( InMemoryEmitter.use( imci ) )
-				.emit( List.of( new Emitter.Post( sToken, "Save" ),
-						new Emitter.Follow( fToken, "Save", "Fabrizio" ),
-						new Emitter.Follow( sToken, "Marco", "Save" ),
-						new Emitter.Posts( "Save", 0 ),
-						new Emitter.Logout( sToken )
-				) );
+		InetSocketAddress commandInterfaceAddress = new InetSocketAddress( 8888 );
 
-		new Retwis_Client( chCS.left(), imci ).loop();
+		try {
+			RetwisCommandInterface HTTP_CI = new RetwisCommandInterface( commandInterfaceAddress );
 
-		System.out.println( "Loop done, closing" );
+			ScriptedEmitter.use( RetwisEmitter.use( commandInterfaceAddress ).setPrefix( "/retwisj" ) )
+					.emit( new LinkedList<>( List.of(
+							new Emitter.Post( sToken, "A retwis.Post from Save", "Save" ),
+							new Emitter.Follow( fToken, "Save", "Fabrizio" ),
+							new Emitter.Follow( sToken, "Marco", "Save" ),
+							new Emitter.Posts( "Save", 0 ),
+							new Emitter.Logout( sToken )
+					) ) );
 
+			new Retwis_Client( chCS.left(), HTTP_CI ).loop();
+
+			HTTP_CI.stop();
+
+		} catch( IOException e ) {
+			e.printStackTrace();
+		}
 	}
 
 }

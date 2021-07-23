@@ -10,9 +10,8 @@ import choral.runtime.WrapperByteChannel.WrapperByteChannel_B;
 import emitters.Emitter;
 import emitters.InMemoryEmitter;
 import emitters.ScriptedEmitter;
-import inMemoryImpl.InMemoryCommandInterface;
-import inMemoryImpl.InMemoryDatabaseConnection;
-import inMemoryImpl.SimpleSessionManager;
+import commandInterfaces.InMemoryCommandInterface;
+import databases.InMemoryDatabaseConnection;
 
 import java.io.IOException;
 import java.util.LinkedList;

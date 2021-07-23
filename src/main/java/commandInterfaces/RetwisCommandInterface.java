@@ -1,22 +1,24 @@
-package inMemoryImpl;
+package commandInterfaces;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import emitters.Emitter;
+import retwis.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
-import emitters.Emitter;
-import retwis.*;
-
-public class HTTPCommandInterface implements CommandInterface {
+public class RetwisCommandInterface implements CommandInterface {
 
 	private final List< CompletableFuture< Emitter.Action > > actions;
 	private final HttpServer httpServer;
@@ -24,7 +26,7 @@ public class HTTPCommandInterface implements CommandInterface {
 	private ResponseMessage currentResponseMessage;
 	private final List< CompletableFuture< ResponseMessage > > actionResponses;
 
-	public HTTPCommandInterface( InetSocketAddress socketAddress ) throws IOException {
+	public RetwisCommandInterface( InetSocketAddress socketAddress ) throws IOException {
 		actions = new LinkedList<>();
 		actionResponses = new LinkedList<>();
 		httpServer = HttpServer.create();
@@ -33,68 +35,80 @@ public class HTTPCommandInterface implements CommandInterface {
 		httpServer.start();
 	}
 
+
+	private static Token getToken( HttpExchange exchange ) {
+		return new Token( exchange.getRequestHeaders().get( "Cookie" ).get( 0 ).split( "=" )[ 1 ] );
+	}
+
+	private static String getUsername( URI uri ) {
+		return uri.getPath().split( "!" )[ 1 ].split( "/" )[ 0 ];
+	}
+
 	public void addContexts() {
-		httpServer.createContext( "/post", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.Post(
-					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
-					headers.getFirst( Emitter.Action.Fields.post.name() )
-			);
+		httpServer.createContext( "/retwisj/!", exchange -> {
+			Emitter.Action action = null;
+			try {
+				URI requestURI = exchange.getRequestURI();
+				System.out.println( "Received request: " + requestURI );
+				if ( exchange.getRequestMethod().equals( "GET" ) ) {
+					// its an action on the user { follow, stopfollow, mentions }
+					if ( requestURI.getQuery() == null || requestURI.getQuery().isBlank() ) {
+						String[] _l = requestURI.getPath().split( "/" );
+						String actionName = _l[ _l.length - 1 ];
+						action = switch ( actionName ) {
+							case "follow" -> new Emitter.Follow(
+											getToken( exchange ),
+											getUsername( exchange.getRequestURI() ),
+											exchange.getRequestHeaders().getFirst( "username" )
+							);
+							case "stopfollowing" -> new Emitter.StopFollow(
+											getToken( exchange ),
+											getUsername( exchange.getRequestURI() ),
+											exchange.getRequestHeaders().getFirst( "username" )
+							);
+							case "mentions" -> new Emitter.Mentions(
+											getToken( exchange ),
+											getUsername( exchange.getRequestURI() )
+							);
+							default -> {
+								System.err.println( "ERROR, could not match action " + actionName );
+								throw new IllegalStateException( "Unexpected value: " + actionName );
+							}
+						};
+					} // its the request for showing posts
+					else {
+						String username = requestURI.getPath().split( "!" )[ 1 ];
+						int page = Integer.parseInt( requestURI.getQuery().split( "=" )[ 1 ] );
+						action = new Emitter.Posts( username, page );
+					}
+				} else {
+					String username = requestURI.getPath().split( "!" )[ 1 ];
+					Token token = getToken( exchange );
+					String content = URLDecoder.decode( Arrays.stream( requestURI.getQuery().split( "&" ) )
+									.filter( i -> i.contains( "content" ) )
+									.collect( Collectors.joining( "" ) )
+									.split( "=" )[ 1 ], StandardCharsets.UTF_8 );
+					action = new Emitter.Post( token, content );
+				}
+			} catch ( Exception e ) {
+				e.printStackTrace();
+			}
 			addAction( action );
 			handleResponse( exchange );
 		} );
-		httpServer.createContext( "/posts", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.Posts(
-					headers.getFirst( Emitter.Action.Fields.postsUsername.name() ),
-					Integer.parseInt( headers.getFirst( Emitter.Action.Fields.postsPage.name() ) )
-			);
-			addAction( action );
-			handleResponse( exchange );
-		} );
-		httpServer.createContext( "/follow", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.Follow(
-					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
-					headers.getFirst( Emitter.Action.Fields.followTarget.name() ),
-					headers.getFirst( Emitter.Action.Fields.username.name() )
-			);
-			addAction( action );
-			handleResponse( exchange );
-		} );
-		httpServer.createContext( "/stopfollow", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.StopFollow(
-					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
-					headers.getFirst( Emitter.Action.Fields.stopFollowTarget.name() ),
-					headers.getFirst( Emitter.Action.Fields.username.name() )
-			);
-			addAction( action );
-			handleResponse( exchange );
-		} );
-		httpServer.createContext( "/logout", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.Logout(
-							new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) )
-			);
-			addAction( action );
-			handleResponse( exchange );
-		} );
-		httpServer.createContext( "/mentions", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
-			Emitter.Action action = new Emitter.Mentions(
-					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
-					headers.getFirst( Emitter.Action.Fields.mentionsUsername.name() )
-			);
-			addAction( action );
-			handleResponse( exchange );
-		} );
-		httpServer.createContext( "/status", exchange -> {
-			Headers headers = exchange.getRequestHeaders();
+
+		httpServer.createContext( "/retwisj/status", exchange -> {
 			Emitter.Action action = new Emitter.Status(
-					new Token( headers.getFirst( Emitter.Action.Fields.sessionToken.name() ) ),
-					headers.getFirst( Emitter.Action.Fields.statusPostID.name() )
+							getToken( exchange ),
+							exchange.getRequestURI().getQuery().split( "=" )[ 1 ]
 			);
+			addAction( action );
+			handleResponse( exchange );
+		} );
+
+
+		httpServer.createContext( "/retwisj/logout", exchange -> {
+			Emitter.Action action = new Emitter.Logout( getToken( exchange ) );
 			addAction( action );
 			handleResponse( exchange );
 		} );
@@ -103,28 +117,28 @@ public class HTTPCommandInterface implements CommandInterface {
 	private void handleResponse( HttpExchange exchange ) {
 		try {
 			CompletableFuture< ResponseMessage > frm = new CompletableFuture<>();
-			synchronized( actionResponses ) {
+			synchronized ( actionResponses ) {
 				actionResponses.add( frm );
 			}
 			ResponseMessage responseMessage = frm.get();
-			synchronized( actionResponses ) {
+			synchronized ( actionResponses ) {
 				actionResponses.remove( 0 );
 			}
 			String response = String.join( "\n", responseMessage.messages );
 			exchange.sendResponseHeaders(
-					responseMessage.isError() ? 500 : 200,
-					response.getBytes( StandardCharsets.UTF_8 ).length );
+							responseMessage.isError() ? 500 : 200,
+							response.getBytes( StandardCharsets.UTF_8 ).length );
 			OutputStream os = exchange.getResponseBody();
 			os.write( response.getBytes( StandardCharsets.UTF_8 ) );
 			os.flush();
 			os.close();
-		} catch( Exception e ) {
+		} catch ( Exception e ) {
 			e.printStackTrace();
 		}
 	}
 
 	public void stop() {
-		synchronized( actionResponses ){
+		synchronized ( actionResponses ) {
 			actionResponses.get( 0 ).complete( currentResponseMessage );
 		}
 		httpServer.stop( 1000 );
@@ -134,17 +148,17 @@ public class HTTPCommandInterface implements CommandInterface {
 
 	@Override
 	public RetwisAction action() {
-		if( firstLoop ) {
+		if ( firstLoop ) {
 			firstLoop = false;
 		} else {
-			synchronized( actionResponses ){
+			synchronized ( actionResponses ) {
 				actionResponses.get( 0 ).complete( currentResponseMessage );
 			}
 		}
 		currentResponseMessage = new ResponseMessage();
 		CompletableFuture< Emitter.Action > cc;
-		synchronized( actions ) {
-			if( !actions.isEmpty() && actions.get( 0 ).isDone() ) {
+		synchronized ( actions ) {
+			if ( !actions.isEmpty() && actions.get( 0 ).isDone() ) {
 				cc = actions.remove( 0 );
 			} else {
 				cc = new CompletableFuture<>();
@@ -153,15 +167,15 @@ public class HTTPCommandInterface implements CommandInterface {
 		}
 		try {
 			currentAction = cc.get();
-		} catch( InterruptedException | ExecutionException e ) {
+		} catch ( InterruptedException | ExecutionException e ) {
 			e.printStackTrace();
 		}
 		return currentAction.action();
 	}
 
 	public void addAction( Emitter.Action action ) {
-		synchronized( actions ) {
-			if( actions.isEmpty() || actions.get( 0 ).isDone() ) {
+		synchronized ( actions ) {
+			if ( actions.isEmpty() || actions.get( 0 ).isDone() ) {
 				CompletableFuture< Emitter.Action > cc = new CompletableFuture<>();
 				cc.complete( action );
 				actions.add( cc );
@@ -264,7 +278,7 @@ public class HTTPCommandInterface implements CommandInterface {
 			messages.add( message );
 		}
 
-		void add( String message ){
+		void add( String message ) {
 			add( message, false );
 		}
 
