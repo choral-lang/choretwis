@@ -3,7 +3,6 @@ package retwis;
 import emitters.Emitter;
 import emitters.RetwisEmitter;
 import emitters.ScriptedEmitter;
-import retwis.Token;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -22,7 +21,7 @@ public class DemoRetwisEmitter {
 
 	public static void main( String[] args ) throws IOException, InterruptedException {
 
-		RetwisEmitter emitter = RetwisEmitter.use( new InetSocketAddress( 8080 ) ).setPrefix( "/retwisj" );
+		RetwisEmitter emitter = RetwisEmitter.use( new InetSocketAddress( 8080 ) ).setPrefix("/org/springframework/data/redis/samples/retwisj");
 
 		// we get the token
 		String username = "pippo";

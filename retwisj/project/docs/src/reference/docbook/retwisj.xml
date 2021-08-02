@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" xml:id="retwisj">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"  xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude" xml:id="spring">
   <title>Retwis-J Tutorial</title>
   
   <para>The Spring Data Redis - Retwis-J sample project show-cases a simple, Twitter-like clone built on top of Redis using Spring Data Redis.
@@ -8,7 +8,7 @@
 	</para>
 
   
-  <section id="retwisj:requirements">
+  <section id="spring:requirements">
     <title>Requirements</title>
     
     <para>To succesfully build and run RetwisJ, one needs:</para>
@@ -25,7 +25,7 @@
     <ulink url="https://redis.io/documentation">Redis</ulink> in particular.</para>
   </section>
 
-  <section id="retwisj:setup">
+  <section id="spring:setup">
     <title>Setup</title>
     
     <para>RetwisJ uses <ulink url="https://gradle.org/">Gradle</ulink> as its build system. To build the artifact, simply type at the command line:</para>
@@ -35,10 +35,10 @@
     <note>If Gradle is installed, one can use <literal>gradle</literal> instead of <literal>gradlew</literal> in the command above.</note>
     
     <para>Once the WAR is created, deploy it into your container of choice and access it using a web browser (typically by accessing 
-    <ulink url="http://localhost:8080/retwisj">http://localhost:8080/retwisj</ulink>). Goes without saying that before accessing the application, Redis should be started.</para>
+    <ulink url="http://localhost:8080/retwisj">http://localhost:8080/spring</ulink>). Goes without saying that before accessing the application, Redis should be started.</para>
   </section>
 
-  <section id="retwisj:structure">
+  <section id="spring:structure">
     <title>Redis Data Layout</title>
     
     <para>For a detailed introduction to Redis and how it can be used as a datastore for Twitter, take a look at the original Retwis 
@@ -419,15 +419,15 @@
     
   </section>
 
-  <section id="retwisj:design">
+  <section id="spring:design">
     <title>Application Design</title>
 
     <para>RetwisJ structure is fairly straight-forward, the application consisting of two layers: the web layer (package
-    <literal>org.springframework.data.redis.sample.retwisj.web</literal>) and the persistence layer (package 
-    <literal>org.springframework.data.redis.sample.retwisj.redis</literal>). The <emphasis>domain</emphasis> objects is available under
+    <literal>org.springframework.data.redis.sample.spring.web</literal>) and the persistence layer (package
+    <literal>org.springframework.data.redis.sample.spring.redis</literal>). The <emphasis>domain</emphasis> objects is available under
     package <literal>org.springframework.data.redis.sample.retwisj</literal>.</para>
     
-    <section id="retwisj:design:web">
+    <section id="spring:design:web">
       <title>Web Layer</title>
       
       <sidebar>
@@ -467,7 +467,7 @@
       section in the reference documentation for more information.</para>
     </section>
     
-    <section id="retwisj:design:persistence">
+    <section id="spring:design:persistence">
       <title>Persistence</title>
       
       <para>The Redis interaction is handled through <classname>RetwisRepository</classname> class that demos many of the Spring Key Redis

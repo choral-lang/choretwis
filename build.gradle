@@ -7,6 +7,13 @@ repositories {
 }
 
 dependencies {
+//    implementation 'org.slf4j:slf4j-api:1.6.6'
+//    implementation 'org.slf4j:jcl-over-slf4j:1.6.6'
+    implementation 'log4j:log4j:1.2.17'
+    implementation 'org.codehaus.jackson:jackson-core-asl:1.8.3'
+    implementation 'org.codehaus.jackson:jackson-mapper-asl:1.8.3'
+    implementation 'redis.clients:jedis:2.1.0'
+    implementation 'org.springframework.data:spring-data-redis:1.1.0.RELEASE' // same version used by retwisj
     implementation fileTree( dir: "lib", include: '*.jar' )
 }
 

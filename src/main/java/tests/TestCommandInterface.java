@@ -1,6 +1,5 @@
 package tests;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import emitters.Emitter;
@@ -14,15 +13,9 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class TestCommandInterface {
@@ -35,7 +28,7 @@ public class TestCommandInterface {
 
 		Token sessionToken = new Token( "123" );
 
-		RetwisEmitter emitter = RetwisEmitter.use( new InetSocketAddress( 8080 ) ).setPrefix( "/retwisj" );
+		RetwisEmitter emitter = RetwisEmitter.use( new InetSocketAddress( 8080 ) ).setPrefix("/org/springframework/data/redis/samples/retwisj");
 
 		// we run the script
 		ScriptedEmitter.use( emitter )
@@ -69,7 +62,7 @@ public class TestCommandInterface {
 	}
 
 	public static void addContexts( HttpServer httpServer ) {
-		httpServer.createContext( "/retwisj/!", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/!", exchange -> {
 			Emitter.Action action;
 			URI requestURI = exchange.getRequestURI();
 			System.out.println( "Received request: " + requestURI );
@@ -116,7 +109,7 @@ public class TestCommandInterface {
 			handleResponse( exchange );
 		} );
 
-		httpServer.createContext( "/retwisj/status", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/status", exchange -> {
 			Emitter.Action action = new Emitter.Status(
 							getToken( exchange ),
 							exchange.getRequestURI().getQuery().split( "=" )[ 1 ]
@@ -125,7 +118,7 @@ public class TestCommandInterface {
 		});
 
 
-		httpServer.createContext( "/retwisj/logout", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/logout", exchange -> {
 			Emitter.Action action = new Emitter.Logout( getToken( exchange ) );
 			handleResponse( exchange );
 		});

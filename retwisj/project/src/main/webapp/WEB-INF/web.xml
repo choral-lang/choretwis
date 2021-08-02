@@ -8,7 +8,7 @@
 
 	<context-param>
 		<param-name>webAppRootKey</param-name>
-		<param-value>retwisj.root</param-value>
+		<param-value>spring.root</param-value>
 	</context-param>
 
 	<context-param>
@@ -56,13 +56,13 @@
 		- of all DispatcherServlet contexts.
 	-->
 	<servlet>
-		<servlet-name>retwisj</servlet-name>
+		<servlet-name>spring</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>retwisj</servlet-name>
+		<servlet-name>spring</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
@@ -73,7 +73,7 @@
 
 	<filter-mapping>
 		<filter-name>httpMethodFilter</filter-name>
-		<servlet-name>retwisj</servlet-name>
+		<servlet-name>spring</servlet-name>
 	</filter-mapping>
 
 	<session-config>

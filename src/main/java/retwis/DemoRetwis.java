@@ -4,11 +4,9 @@ import choral.channels.SymChannel_A;
 import choral.channels.SymChannel_B;
 import choral.choralUnit.testUtils.TestUtils;
 import choral.utils.Pair;
-import commandInterfaces.HTTPCommandInterface;
 import commandInterfaces.RetwisCommandInterface;
-import databases.InMemoryDatabaseConnection;
+import databases.RedisDatabaseConnection;
 import emitters.Emitter;
-import emitters.HTTPEmitter;
 import emitters.RetwisEmitter;
 import emitters.ScriptedEmitter;
 
@@ -27,7 +25,7 @@ public class DemoRetwis {
 	) {
 		executor.submit( () -> {
 			try {
-				new Retwis_Repository( chSR, InMemoryDatabaseConnection.instance() ).loop();
+				new Retwis_Repository( chSR, RedisDatabaseConnection.instance() ).loop();
 				executor.shutdown();
 			} catch( Exception e ) {
 				e.printStackTrace();
@@ -54,9 +52,9 @@ public class DemoRetwis {
 		Token mToken = SimpleSessionManager.instance().createSession( "Marco" );
 		Token fToken = SimpleSessionManager.instance().createSession( "Fabrizio" );
 
-		InMemoryDatabaseConnection.instance().addUser( "Save", "pswd" );
-		InMemoryDatabaseConnection.instance().addUser( "Marco", "pswd" );
-		InMemoryDatabaseConnection.instance().addUser( "Fabrizio", "pswd" );
+		RedisDatabaseConnection.instance().addUser( "Save", "pswd" );
+		RedisDatabaseConnection.instance().addUser( "Marco", "pswd" );
+		RedisDatabaseConnection.instance().addUser( "Fabrizio", "pswd" );
 
 		Pair< SymChannel_A< Object >, SymChannel_B< Object > > chSR =
 				TestUtils.newLocalChannel( "chSR" );
@@ -71,7 +69,7 @@ public class DemoRetwis {
 		try {
 			RetwisCommandInterface HTTP_CI = new RetwisCommandInterface( commandInterfaceAddress );
 
-			ScriptedEmitter.use( RetwisEmitter.use( commandInterfaceAddress ).setPrefix( "/retwisj" ) )
+			ScriptedEmitter.use( RetwisEmitter.use( commandInterfaceAddress ).setPrefix("/org/springframework/data/redis/samples/retwisj") )
 					.emit( new LinkedList<>( List.of(
 							new Emitter.Post( sToken, "A retwis.Post from Save", "Save" ),
 							new Emitter.Follow( fToken, "Save", "Fabrizio" ),

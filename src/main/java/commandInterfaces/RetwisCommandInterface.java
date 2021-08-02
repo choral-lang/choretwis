@@ -45,7 +45,7 @@ public class RetwisCommandInterface implements CommandInterface {
 	}
 
 	public void addContexts() {
-		httpServer.createContext( "/retwisj/!", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/!", exchange -> {
 			Emitter.Action action = null;
 			try {
 				URI requestURI = exchange.getRequestURI();
@@ -97,7 +97,7 @@ public class RetwisCommandInterface implements CommandInterface {
 			handleResponse( exchange );
 		} );
 
-		httpServer.createContext( "/retwisj/status", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/status", exchange -> {
 			Emitter.Action action = new Emitter.Status(
 							getToken( exchange ),
 							exchange.getRequestURI().getQuery().split( "=" )[ 1 ]
@@ -107,7 +107,7 @@ public class RetwisCommandInterface implements CommandInterface {
 		} );
 
 
-		httpServer.createContext( "/retwisj/logout", exchange -> {
+		httpServer.createContext("/org/springframework/data/redis/samples/retwisj/logout", exchange -> {
 			Emitter.Action action = new Emitter.Logout( getToken( exchange ) );
 			addAction( action );
 			handleResponse( exchange );

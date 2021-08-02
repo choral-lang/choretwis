@@ -1,4 +1,4 @@
 FROM tomcat
 
-# COPY ./project/build/libs/retwisj.war /usr/local/tomcat/webapps/
-COPY ./retwisj.war /usr/local/tomcat/webapps/
+# COPY ./project/build/libs/spring.war /usr/local/tomcat/webapps/
+COPY ./spring.war /usr/local/tomcat/webapps/
